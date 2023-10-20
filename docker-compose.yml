@@ -1,0 +1,39 @@
+version: '3.3'
+services:
+  rabbitmq:
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    image: rabbitmq:management
+    container_name: rabbitmq
+    hostname: rabbitmq
+    restart: always
+    environment:
+      - RABBITMQ_VM_MEMORY_HIGH_WATERMARK.relative=1
+
+
+  clickhouse:
+    hostname: clickhouse
+    container_name: clickhouse
+    volumes:
+      - ./clickhouse-data:/var/lib/clickhouse
+    image: yandex/clickhouse-server
+    restart: always
+    environment:
+      - CLICKHOUSE_DB=test
+      - CLICKHOUSE_USER=admin
+      - CLICKHOUSE_PASSWORD=admin
+
+    ports:
+      - "8123:8123"
+      - "9001:9000"
+      - "9942:9942"
+
+
+  managment:
+    container_name: managment
+    hostname: managment
+    build: ./managment
+    depends_on:
+      - rabbitmq
+      - clickhouse
